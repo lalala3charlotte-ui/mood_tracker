@@ -72,9 +72,14 @@
             #yearly-overlay { padding: 20px; }
             #yearly-overlay h1 { font-size: 2.5rem !important; }
         }
+
+        .lang-toggle { position: fixed; top: 20px; right: 20px; background: white; border: 2px solid var(--main-pink); border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; color: var(--main-pink); z-index: 5000; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .year-selector { padding: 10px 15px; border-radius: 12px; border: 2px solid var(--main-pink); font-family: inherit; font-weight: bold; color: var(--deep-pink); outline: none; cursor: pointer; }
     </style>
 </head>
 <body>
+
+<div class="lang-toggle" onclick="toggleLanguage()" id="langBtn">EN</div>
 
 <div class="container">
     <div class="sidebar">
@@ -95,17 +100,17 @@
                     <div class="emoji-grid" id="emojiGrid"></div>
                 </div>
             </div>
-            <textarea id="noteInput" class="input-field" style="height: 80px; resize: none;" placeholder="오늘 어떤 일이 있었나요?"></textarea>
-            <input type="text" id="affirmationInput" class="input-field" placeholder="나를 향한 한마디 ✨">
+            <textarea id="noteInput" class="input-field" style="height: 80px; resize: none;" data-t-placeholder="notePlaceholder"></textarea>
+            <input type="text" id="affirmationInput" class="input-field" data-t-placeholder="affirmationPlaceholder">
             <div style="display:flex; gap:10px;">
-                <button class="btn-pink" onclick="saveAll()">기록 완료 ✨</button>
+                <button class="btn-pink" onclick="saveAll()" data-t="saveBtn"></button>
                 <button style="background:none; border:none; font-size:1.4rem; cursor:pointer;" onclick="confirmDelete()">🗑️</button>
             </div>
         </div>
 
         <div class="card" id="habitCard">
             <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:18px;">
-                <h3 style="margin:0; color:var(--deep-pink); font-weight:800;">Habit Tracker</h3>
+                <h3 style="margin:0; color:var(--deep-pink); font-weight:800;" data-t="habitTitle"></h3>
                 <div style="display:flex; gap:12px; align-items: center;">
                     <span style="cursor:pointer; font-size:1.1rem;" onclick="toggleEditHabit()" id="editToggleBtn">⚙️</span>
                     <span style="cursor:pointer; font-size:1.3rem;" onclick="toggleHabitChart()">📈</span>
@@ -113,14 +118,14 @@
                 </div>
             </div>
             <div id="habitList"></div>
-            <div id="addHabitBtn" onclick="addHabitItem()" style="display:none; text-align:center; color:var(--main-pink); cursor:pointer; border:1.5px dashed var(--main-pink); border-radius:12px; padding:8px; margin-top:10px; font-weight:bold;">+ 새로운 목표 추가</div>
+            <div id="addHabitBtn" onclick="addHabitItem()" style="display:none; text-align:center; color:var(--main-pink); cursor:pointer; border:1.5px dashed var(--main-pink); border-radius:12px; padding:8px; margin-top:10px; font-weight:bold;" data-t="addHabitBtn"></div>
         </div>
     </div>
 
     <div class="main-content">
         <div class="graph-title-bar">
             <div class="title-group">
-                <h2>Your Mood Butler</h2>
+                <h2 data-t="mainTitle"></h2>
                 <div style="position:relative;">
                     <button onclick="toggleThemeMenu()" style="background:none; border:none; cursor:pointer; font-size:1.4rem;">🎨</button>
                     <div id="themeMenuPopup">
@@ -128,18 +133,18 @@
                         <div class="theme-opt" onclick="applyTheme('ocean')">🌊 Ocean Calm</div>
                         <div class="theme-opt" onclick="applyTheme('forest')">🌿 Deep Forest</div>
                         <div style="border-top:1px solid #eee; margin:5px 0;"></div>
-                        <div style="font-size:0.75rem; color:#999; margin-left:12px;">Custom Color</div>
+                        <div style="font-size:0.75rem; color:#999; margin-left:12px;" data-t="customColor"></div>
                         <input type="color" onchange="applyCustomTheme(this.value)" style="width:100%; height:30px; border:none; cursor:pointer; background:none;">
                     </div>
                 </div>
             </div>
-            <button class="view-btn-large" style="flex:none; width:180px; font-family:'Dancing Script';" onclick="openYearlyView()">Yearly Journey</button>
+            <button class="view-btn-large" style="flex:none; width:180px; font-family:'Dancing Script';" onclick="openYearlyView()" data-t="yearlyJourneyBtn"></button>
         </div>
 
         <div class="card">
             <div style="display:flex; gap:10px; margin-bottom: 20px;">
-                <button id="btn-monthly" class="view-btn-large active" onclick="switchView('monthly')">Monthly</button>
-                <button id="btn-weekly" class="view-btn-large" onclick="switchView('weekly')">Weekly</button>
+                <button id="btn-monthly" class="view-btn-large active" onclick="switchView('monthly')" data-t="monthly"></button>
+                <button id="btn-weekly" class="view-btn-large" onclick="switchView('weekly')" data-t="weekly"></button>
             </div>
             <div style="height:380px;">
                 <canvas id="moodChart"></canvas>
@@ -148,8 +153,8 @@
         </div>
 
         <div class="card analysis-box" id="analysisBox">
-            <h4 style="margin:0 0 10px 0; opacity:0.9;">🪄 AI Butler's Insight</h4>
-            <div id="moodAnalysisText">분석 중...</div>
+            <h4 style="margin:0 0 10px 0; opacity:0.9;" data-t="aiInsight"></h4>
+            <div id="moodAnalysisText" data-t="analyzing"></div>
             <div id="habitAnalysisText" style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.3); display:none;"></div>
         </div>
     </div>
@@ -158,8 +163,11 @@
 <div id="yearly-overlay">
     <div style="max-width: 900px; margin: 0 auto;">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:30px;">
-            <h1 style="font-family:'Dancing Script'; color:var(--deep-pink); font-size:3.5rem; margin:0;">2026 Journey</h1>
-            <button onclick="closeYearlyView()" class="btn-pink" style="width:100px;">닫기</button>
+            <div style="display:flex; align-items: center; gap: 20px;">
+                <h1 style="font-family:'Dancing Script'; color:var(--deep-pink); font-size:3.5rem; margin:0;" id="yearlyTitle"></h1>
+                <select id="yearSelector" class="year-selector" onchange="updateYearlyView(this.value)"></select>
+            </div>
+            <button onclick="closeYearlyView()" class="btn-pink" style="width:100px;" data-t="closeBtn"></button>
         </div>
         <div id="yearlyList"></div>
     </div>
@@ -168,11 +176,67 @@
 <div id="cloud-tooltip"></div>
 
 <script>
+    const i18n = {
+        ko: {
+            mainTitle: "Your Mood Butler",
+            yearlyJourneyBtn: "Yearly Journey",
+            monthly: "Monthly",
+            weekly: "Weekly",
+            aiInsight: "🪄 AI Butler's Insight",
+            analyzing: "분석 중...",
+            habitTitle: "Habit Tracker",
+            addHabitBtn: "+ 새로운 목표 추가",
+            notePlaceholder: "오늘 어떤 일이 있었나요?",
+            affirmationPlaceholder: "나를 향한 한마디 ✨",
+            saveBtn: "기록 완료 ✨",
+            closeBtn: "닫기",
+            customColor: "Custom Color",
+            deleteConfirm: "기록을 삭제할까요?",
+            moodSummary: "기분 요약",
+            habitAnalysis: "습관 분석",
+            moodVeryHappy: "매우 활기찬 날들이었네요! 지금처럼 긍정적인 에너지를 유지해봐요. ✨",
+            moodCalm: "평온하고 균형 잡힌 마음이 느껴집니다. 참 잘하고 계세요. 🌿",
+            moodLow: "조금 가라앉은 날들이 있었지만, 그런 날 또한 과정일 뿐입니다. 🫂",
+            noData: "아직 기록된 데이터가 없습니다.",
+            habitBest: "기록된 <b>{days}일</b> 중 <b>'{habit}'</b>을(를) 가장 잘 실천하셨네요! 정말 칭찬해요. 👏",
+            habitEncourage: "<br><b>'{habit}'</b>도 한 번만 더 시도해보면 어떨까요? 힘내세요!",
+            monthSuffix: "월",
+            journeySuffix: "Journey"
+        },
+        en: {
+            mainTitle: "Your Mood Butler",
+            yearlyJourneyBtn: "Yearly Journey",
+            monthly: "Monthly",
+            weekly: "Weekly",
+            aiInsight: "🪄 AI Butler's Insight",
+            analyzing: "Analyzing...",
+            habitTitle: "Habit Tracker",
+            addHabitBtn: "+ Add New Habit",
+            notePlaceholder: "How was your day?",
+            affirmationPlaceholder: "A word for yourself ✨",
+            saveBtn: "Save ✨",
+            closeBtn: "Close",
+            customColor: "Custom Color",
+            deleteConfirm: "Delete this record?",
+            moodSummary: "Mood Summary",
+            habitAnalysis: "Habit Analysis",
+            moodVeryHappy: "You had very energetic days! Keep up this positive energy. ✨",
+            moodCalm: "I feel a calm and balanced mind. You're doing great. 🌿",
+            moodLow: "There were some low days, but those are just part of the process. 🫂",
+            noData: "No data recorded yet.",
+            habitBest: "You practiced <b>'{habit}'</b> best out of <b>{days} days</b> recorded! Well done. 👏",
+            habitEncourage: "<br>How about trying <b>'{habit}'</b> one more time? You can do it!",
+            monthSuffix: "",
+            journeySuffix: "Journey"
+        }
+    };
+
+    let lang = localStorage.getItem('moodHabit_Lang') || 'ko';
     let currentView = 'monthly', dateContext = new Date();
     let selectedDateKey = formatDate(new Date());
     let pickingIndex = -1;
     let isEditMode = false;
-    let isHabitAnalysisOpen = false; // 🔍 분석창 상태 관리 변수
+    let isHabitAnalysisOpen = false;
 
     const store = JSON.parse(localStorage.getItem('moodHabitData_vFinal_V7')) || {};
     let habitNames = JSON.parse(localStorage.getItem('moodHabit_HabitNames')) || ["물 2L 마시기", "운동 30분", "비타민 챙기기", "독서 10분"];
@@ -197,30 +261,62 @@
         renderHabitList();
         initChart();
         loadData();
+        updateLanguageUI();
+        initYearSelector();
+    }
+
+    function toggleLanguage() {
+        lang = lang === 'ko' ? 'en' : 'ko';
+        localStorage.setItem('moodHabit_Lang', lang);
+        updateLanguageUI();
+        updateChartData();
+        renderCalendar();
+        renderHabitList();
+    }
+
+    function updateLanguageUI() {
+        document.getElementById('langBtn').innerText = lang === 'ko' ? 'EN' : 'KO';
+        document.querySelectorAll('[data-t]').forEach(el => {
+            const key = el.getAttribute('data-t');
+            el.innerHTML = i18n[lang][key];
+        });
+        document.querySelectorAll('[data-t-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-t-placeholder');
+            el.placeholder = i18n[lang][key];
+        });
+    }
+
+    function initYearSelector() {
+        const selector = document.getElementById('yearSelector');
+        const currentYear = new Date().getFullYear();
+        for (let y = currentYear - 50; y <= currentYear + 50; y++) {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.innerText = y;
+            if (y === currentYear) opt.selected = true;
+            selector.appendChild(opt);
+        }
     }
 
     function formatDate(date) { return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`; }
 
     function runMoodAnalysisAuto() {
         const keys = mainChart.data.rawKeys;
-        const viewName = currentView === 'monthly' ? "이번 달" : "이번 주";
+        const viewName = currentView === 'monthly' ? (lang === 'ko' ? "이번 달" : "This Month") : (lang === 'ko' ? "이번 주" : "This Week");
         let moodSum = 0, moodCount = 0;
         keys.forEach(k => { if(store[k]?.mood) { moodSum += store[k].mood; moodCount++; } });
 
-        let analysis = `<b>[${viewName} 기분 요약]</b><br>`;
+        let analysis = `<b>[${viewName} ${i18n[lang].moodSummary}]</b><br>`;
         if(moodCount > 0) {
             const avg = moodSum / moodCount;
-            if(avg >= 4) analysis += `매우 활기찬 날들이었네요! 지금처럼 긍정적인 에너지를 유지해봐요. ✨`;
-            else if(avg >= 2.5) analysis += `평온하고 균형 잡힌 마음이 느껴집니다. 참 잘하고 계세요. 🌿`;
-            else analysis += `조금 가라앉은 날들이 있었지만, 그런 날 또한 과정일 뿐입니다. 🫂`;
-        } else { analysis += "아직 기록된 기분이 없습니다."; }
+            if(avg >= 4) analysis += i18n[lang].moodVeryHappy;
+            else if(avg >= 2.5) analysis += i18n[lang].moodCalm;
+            else analysis += i18n[lang].moodLow;
+        } else { analysis += i18n[lang].noData; }
         document.getElementById('moodAnalysisText').innerHTML = analysis;
-        
-        // ★ 중요: 기분 분석이 실행될 때 습관 분석이 켜져있다면 습관 데이터도 갱신
         if(isHabitAnalysisOpen) runHabitAnalysisOnly();
     }
 
-    // 🔍 돋보기 토글 함수
     function toggleHabitAnalysis() {
         isHabitAnalysisOpen = !isHabitAnalysisOpen;
         const hBox = document.getElementById('habitAnalysisText');
@@ -234,7 +330,7 @@
 
     function runHabitAnalysisOnly() {
         const keys = mainChart.data.rawKeys;
-        const viewName = currentView === 'monthly' ? "이번 달" : "이번 주";
+        const viewName = currentView === 'monthly' ? (lang === 'ko' ? "이번 달" : "This Month") : (lang === 'ko' ? "이번 주" : "This Week");
         let habitCounts = habitNames.map(() => 0);
         let activeDays = 0;
 
@@ -252,11 +348,11 @@
             let bestIdx = habitCounts.indexOf(maxVal);
             let worstIdx = habitCounts.indexOf(minVal);
 
-            let text = `<b>[${viewName} 습관 분석]</b><br>`;
-            text += `기록된 <b>${activeDays}일</b> 중 <b>'${habitNames[bestIdx]}'</b>을(를) 가장 잘 실천하셨네요! 정말 칭찬해요. 👏`;
-            if(maxVal !== minVal) { text += `<br><b>'${habitNames[worstIdx]}'</b>도 한 번만 더 시도해보면 어떨까요? 힘내세요!`; }
+            let text = `<b>[${viewName} ${i18n[lang].habitAnalysis}]</b><br>`;
+            text += i18n[lang].habitBest.replace('{days}', activeDays).replace('{habit}', habitNames[bestIdx]);
+            if(maxVal !== minVal) { text += i18n[lang].habitEncourage.replace('{habit}', habitNames[worstIdx]); }
             hBox.innerHTML = text;
-        } else { hBox.innerHTML = `<b>[${viewName} 습관 분석]</b><br>아직 실천된 습관 데이터가 없습니다.`; }
+        } else { hBox.innerHTML = `<b>[${viewName} ${i18n[lang].habitAnalysis}]</b><br>${i18n[lang].noData}`; }
     }
 
     function initChart() {
@@ -313,7 +409,7 @@
         mainChart.data.datasets[0].data = rawKeys.map(k => store[k]?.mood || null);
         mainChart.data.datasets[1].data = rawKeys.map(k => (store[k]?.habits || []).filter(h => h).length);
         mainChart.update();
-        runMoodAnalysisAuto(); // 이 내부에서 습관 분석도 함께 호출됨
+        runMoodAnalysisAuto();
     }
 
     function triggerPinkConfetti() {
@@ -402,7 +498,8 @@
         const y = dateContext.getFullYear(), m = dateContext.getMonth();
         document.getElementById('monthDisplay').innerText = `${y}.${m+1}`;
         const first = new Date(y, m, 1).getDay(), last = new Date(y, m+1, 0).getDate();
-        ['S','M','T','W','T','F','S'].forEach(l => { const d=document.createElement('div'); d.className='day-label'; d.innerText=l; cal.appendChild(d); });
+        const labels = lang === 'ko' ? ['일','월','화','수','목','금','토'] : ['S','M','T','W','T','F','S'];
+        labels.forEach(l => { const d=document.createElement('div'); d.className='day-label'; d.innerText=l; cal.appendChild(d); });
         for(let i=0; i<first; i++) cal.appendChild(document.createElement('div'));
         for(let i=1; i<=last; i++) {
             const key = `${y}-${m+1}-${i}`, div = document.createElement('div');
@@ -452,7 +549,7 @@
 
     function toggleThemeMenu() { const m = document.getElementById('themeMenuPopup'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
     function toggleEditHabit() { isEditMode = !isEditMode; renderHabitList(); document.getElementById('addHabitBtn').style.display = isEditMode ? 'block' : 'none'; document.getElementById('editToggleBtn').innerText = isEditMode ? '✅' : '⚙️'; saveToLocal(); }
-    function addHabitItem() { habitNames.push("새 습관"); renderHabitList(); saveToLocal(); }
+    function addHabitItem() { habitNames.push(lang === 'ko' ? "새 습관" : "New Habit"); renderHabitList(); saveToLocal(); }
     function removeHabitItem(i) { habitNames.splice(i, 1); renderHabitList(); saveToLocal(); }
     function editHabitName(i, val) { habitNames[i] = val; saveToLocal(); }
     function updateHabit(i) { if(!store[selectedDateKey]) store[selectedDateKey] = {mood:null, habits:[]}; if(!store[selectedDateKey].habits) store[selectedDateKey].habits = []; store[selectedDateKey].habits[i] = document.getElementById(`chk-${i}`).checked; saveToLocal(); updateChartData(); }
@@ -460,20 +557,27 @@
     function changeMonth(diff) { dateContext.setMonth(dateContext.getMonth() + diff); renderCalendar(); updateChartData(); }
     function toggleHabitChart() { mainChart.data.datasets[1].hidden = !mainChart.data.datasets[1].hidden; mainChart.update(); }
     function closeYearlyView() { document.getElementById('yearly-overlay').style.display = 'none'; }
-    function confirmDelete() { if(confirm("기록을 삭제할까요?")) { delete store[selectedDateKey]; saveToLocal(); loadData(); renderCalendar(); updateChartData(); } }
+    function confirmDelete() { if(confirm(i18n[lang].deleteConfirm)) { delete store[selectedDateKey]; saveToLocal(); loadData(); renderCalendar(); updateChartData(); } }
 
     function openYearlyView() {
         document.getElementById('yearly-overlay').style.display = 'block';
+        const currentYear = new Date().getFullYear();
+        document.getElementById('yearSelector').value = currentYear;
+        updateYearlyView(currentYear);
+    }
+
+    function updateYearlyView(year) {
         const container = document.getElementById('yearlyList'); container.innerHTML = '';
+        document.getElementById('yearlyTitle').innerText = `${year} ${i18n[lang].journeySuffix}`;
         const mainColor = getComputedStyle(document.documentElement).getPropertyValue('--main-pink').trim();
         for (let m = 1; m <= 12; m++) {
             const row = document.createElement('div'); row.className = 'month-row';
-            row.innerHTML = `<div style="width:60px; font-weight:700; color:var(--deep-pink);">${m}월</div><div style="flex:1; height:80px;"><canvas id="yChart${m}"></canvas></div>`;
+            row.innerHTML = `<div style="width:60px; font-weight:700; color:var(--deep-pink);">${m}${i18n[lang].monthSuffix}</div><div style="flex:1; height:80px;"><canvas id="yChart${m}"></canvas></div>`;
             container.appendChild(row);
-            const daysCount = new Date(2026, m, 0).getDate();
+            const daysCount = new Date(year, m, 0).getDate();
             const daysLabels = Array.from({length: daysCount}, (_, i) => i + 1);
             new Chart(document.getElementById(`yChart${m}`).getContext('2d'), {
-                type: 'line', data: { labels: daysLabels, datasets: [{ data: daysLabels.map(d => store[`2026-${m}-${d}`]?.mood || null), borderColor: mainColor, borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: true }] },
+                type: 'line', data: { labels: daysLabels, datasets: [{ data: daysLabels.map(d => store[`${year}-${m}-${d}`]?.mood || null), borderColor: mainColor, borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: true }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false, min: 0, max: 6 } } },
                 plugins: [{
                     beforeDraw: (chart) => {
